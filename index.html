@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>📚 Study Hub</h1>
+    <p>Admin: Satyam Vishwakarma</p>
+  </header>
+
+  <main>
+    <input id="search" type="search"
+      placeholder="Search study materials...">
+
+    <h2>Select Your Class</h2>
+    <nav>
+      <button onclick="showClass('10')">Class 10</button>
+      <button onclick="showClass('11')">Class 11</button>
+      <button onclick="showClass('12')">Class 12</button>
+    </nav>
+
+    <h2 id="classTitle">Class 10 Materials</h2>
+    <div id="materials">Materials will appear here.</div>
+  </main>
+
+  <script>
+    function showClass(c) {
+      document.getElementById('classTitle').textContent =
+        'Class ' + c + ' Materials';
+      document.getElementById('materials').textContent =
+        'Class ' + c + ' study materials will appear here.';
+    }
+  </script>
+</body>
+</html>
