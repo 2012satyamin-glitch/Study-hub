@@ -1,40 +1,37 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Study Hub</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study Hub | Class 10, 11 & 12</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>📚 Study Hub</h1>
-    <p>Admin: Satyam Vishwakarma</p>
-  </header>
-
-  <main>
-    <input id="search" type="search"
-      placeholder="Search study materials...">
-
-    <h2>Select Your Class</h2>
-    <nav>
-      <button onclick="showClass('10')">Class 10</button>
-      <button onclick="showClass('11')">Class 11</button>
-      <button onclick="showClass('12')">Class 12</button>
-    </nav>
-
-    <h2 id="classTitle">Class 10 Materials</h2>
-    <div id="materials">Materials will appear here.</div>
-  </main>
-
-  <script>
-    function showClass(c) {
-      document.getElementById('classTitle').textContent =
-        'Class ' + c + ' Materials';
-      document.getElementById('materials').textContent =
-        'Class ' + c + ' study materials will appear here.';
-    }
-  </script>
+<header class="hero">
+  <div class="topline"><span class="brand">📚 Study Hub</span><span class="admin-label">By Satyam Vishwakarma</span></div>
+  <h1>Your Study Materials, All in One Place</h1>
+  <p>Notes, PDFs and practice material for Classes 10, 11 and 12.</p>
+  <label class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="Search notes, subjects or chapters…"></label>
+</header>
+<main>
+  <section class="toolbar">
+    <div><h2>Study Materials</h2><p class="muted">Choose your class to explore resources.</p></div>
+    <div class="tabs" role="group" aria-label="Choose class">
+      <button class="tab active" data-class="All">All</button>
+      <button class="tab" data-class="10">Class 10</button>
+      <button class="tab" data-class="11">Class 11</button>
+      <button class="tab" data-class="12">Class 12</button>
+    </div>
+  </section>
+  <section id="materials" class="materials"></section>
+  <section class="empty hidden" id="empty">No materials match your search yet.</section>
+  <section class="admin-card">
+    <div class="admin-icon">🔒</div>
+    <div class="admin-copy"><h2>Admin upload</h2><p>Only the site owner should add files. To publish materials for everyone, upload them to your chosen file host and add their public links to <code>app.js</code>.</p></div>
+    <a class="button secondary" href="https://github.com/2012satyamin-glitch/Study-hub" target="_blank" rel="noopener">Open GitHub</a>
+  </section>
+</main>
+<footer>© <span id="year"></span> Study Hub · Learn a little every day.</footer>
+<script src="app.js"></script>
 </body>
 </html>
