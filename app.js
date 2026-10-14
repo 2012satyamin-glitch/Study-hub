@@ -1,2 +1,78 @@
-*{box-sizing:border-box} :root{color-scheme:dark;--bg:#0b1020;--panel:#131b2e;--line:#27334c;--text:#f4f7ff;--muted:#a8b4ca;--accent:#8b9cff;--accent2:#c2caff}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5}.hero{padding:26px max(20px,calc((100% - 1080px)/2)) 38px;background:radial-gradient(ellipse at top right,#27366c 0,transparent 55%),linear-gradient(140deg,#121a30,#0b1020);border-bottom:1px solid var(--line)}.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.brand{font-size:1.2rem;font-weight:800}.admin-label{font-size:.84rem;color:var(--muted)}h1{font-size:clamp(1.9rem,5vw,3.25rem);line-height:1.1;max-width:720px;margin:34px 0 12px} .hero p,.muted{color:var(--muted)}.search-wrap{margin-top:22px;display:flex;align-items:center;gap:10px;max-width:620px;background:#fff;color:#1a2440;border-radius:14px;padding:0 15px}.search-wrap span{font-size:1.5rem}.search-wrap input{border:0;outline:0;background:transparent;width:100%;padding:16px 0;font:inherit;color:#111a2e}main{max-width:1080px;margin:auto;padding:28px 20px 42px}.toolbar{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap}.toolbar h2,.admin-copy h2{margin:0;font-size:1.35rem}.toolbar p,.admin-copy p{margin:5px 0 0}.tabs{display:flex;gap:7px;flex-wrap:wrap}.tab,.button{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--panel);color:var(--text);font:inherit;cursor:pointer;text-decoration:none}.tab.active{background:var(--accent);border-color:var(--accent);color:#0b1020;font-weight:750}.materials{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:16px;margin-top:22px}.material{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px;min-height:190px}.material .emoji{font-size:1.7rem}.pill{font-size:.76rem;color:var(--accent2);background:#273254;padding:4px 9px;border-radius:99px;align-self:flex-start}.material h3{margin:0;font-size:1.12rem}.material p{color:var(--muted);margin:0;flex:1}.material a{color:#d4dcff;font-weight:700;text-decoration:none;margin-top:4px}.material a:hover{text-decoration:underline}.empty{padding:28px;text-align:center;color:var(--muted)}.hidden{display:none}.admin-card{margin-top:34px;padding:20px;border:1px solid var(--line);background:#101729;border-radius:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}.admin-icon{font-size:1.7rem}.admin-copy{flex:1;min-width:220px}.admin-copy p{font-size:.9rem;color:var(--muted);max-width:650px}.secondary{white-space:nowrap}footer{text-align:center;color:var(--muted);font-size:.85rem;padding:22px;border-top:1px solid var(--line)}code{color:var(--accent2)}@media(max-width:560px){.hero{padding-top:20px}.toolbar{align-items:flex-start}.tabs{width:100%}.tab{flex:1;padding:9px 7px;font-size:.88rem}.admin-card .button{width:100%;text-align:center}}
+const materials = [
+{ title: "Real Numbers", subject: "Mathematics", cls: "10", desc: "Chapter notes and practice questions", icon: "📘" },
+{ title: "Polynomials", subject: "Mathematics", cls: "10", desc: "Important questions and revision", icon: "📐" },
+{ title: "Pair of Linear Equations", subject: "Mathematics", cls: "10", desc: "Chapter practice material", icon: "📝" },
+{ title: "Science Notes", subject: "Science", cls: "10", desc: "Physics, Chemistry and Biology", icon: "🔬" },
+{ title: "Social Science Notes", subject: "SST", cls: "10", desc: "History, Geography, Civics and Economics", icon: "🌍" },
+{ title: "English Notes", subject: "English", cls: "10", desc: "Poems, chapters and grammar", icon: "📖" },
+{ title: "Class 11 Study Resources", subject: "All Subjects", cls: "11", desc: "Notes and revision resources", icon: "📚" },
+{ title: "Class 12 Study Resources", subject: "All Subjects", cls: "12", desc: "Notes and revision resources", icon: "🎓" }
+];
+
+const grid = document.querySelector(".materials");
+const search = document.querySelector("input");
+const tabs = document.querySelectorAll(".tab");
+
+let selectedClass = "All";
+
+function renderMaterials() {
+if (!grid) return;
+
+const query = search ? search.value.toLowerCase().trim() : "";
+
+const filtered = materials.filter(item => {
+const matchesClass =
+selectedClass === "All" || item.cls === selectedClass;
+
+const matchesSearch =
+  (item.title + " " + item.subject + " " + item.desc)
+    .toLowerCase()
+    .includes(query);
+
+return matchesClass && matchesSearch;
+
+});
+
+grid.innerHTML = "";
+
+if (filtered.length === 0) {
+grid.innerHTML = '<p class="empty">No materials found.</p>';
+return;
+}
+
+filtered.forEach(item => {
+const card = document.createElement("article");
+card.className = "material";
+
+card.innerHTML = `
+  <div class="emoji">${item.icon}</div>
+  <span class="pill">Class ${item.cls} · ${item.subject}</span>
+  <h3>${item.title}</h3>
+  <p>${item.desc}</p>
+  <span class="muted">Study material coming soon</span>
+`;
+
+grid.appendChild(card);
+
+});
+}
+
+if (search) {
+search.addEventListener("input", renderMaterials);
+}
+
+tabs.forEach(tab => {
+tab.addEventListener("click", () => {
+tabs.forEach(button => button.classList.remove("active"));
+tab.classList.add("active");
+
+const label = tab.textContent.trim();
+selectedClass = label === "All" ? "All" : label.replace("Class ", "");
+
+renderMaterials();
+
+});
+});
+
+renderMaterials();
   
