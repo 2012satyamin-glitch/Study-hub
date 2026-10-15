@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,30 +9,81 @@
 </head>
 <body>
 <header class="hero">
-  <div class="topline"><span class="brand">📚 Study Hub</span><span class="admin-label">By Satyam Vishwakarma</span></div>
+  <div class="topline">
+    <span class="brand">📚 Study Hub</span>
+    <span class="admin-label">By Satyam Vishwakarma</span>
+  </div>
   <h1>Your Study Materials, All in One Place</h1>
   <p>Notes, PDFs and practice material for Classes 10, 11 and 12.</p>
-  <label class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="Search notes, subjects or chapters…"></label>
+  <label class="search-wrap">
+    <span>⌕</span>
+    <input id="search" type="search" placeholder="Search notes, subjects or chapters…">
+  </label>
 </header>
+
 <main>
   <section class="toolbar">
-    <div><h2>Study Materials</h2><p class="muted">Choose your class to explore resources.</p></div>
-    <div class="tabs" role="group" aria-label="Choose class">
+    <div>
+      <h2>Study Materials</h2>
+      <p class="muted">Choose your class to explore resources.</p>
+    </div>
+    <div class="tabs">
       <button class="tab active" data-class="All">All</button>
       <button class="tab" data-class="10">Class 10</button>
       <button class="tab" data-class="11">Class 11</button>
       <button class="tab" data-class="12">Class 12</button>
     </div>
   </section>
+
   <section id="materials" class="materials"></section>
-  <section class="empty hidden" id="empty">No materials match your search yet.</section>
+  <section class="empty hidden" id="empty">No materials found.</section>
+
   <section class="admin-card">
-    <div class="admin-icon">🔒</div>
-    <div class="admin-copy"><h2>Admin upload</h2><p>Only the site owner should add files. To publish materials for everyone, upload them to your chosen file host and add their public links to <code>app.js</code>.</p></div>
-    <a class="button secondary" href="https://github.com/2012satyamin-glitch/Study-hub" target="_blank" rel="noopener">Open GitHub</a>
+    <div class="admin-copy">
+      <h2>🔐 Admin Login</h2>
+      <p>Only the website administrator can upload PDFs.</p>
+
+      <form id="loginForm">
+        <label>Email
+          <input id="email" type="email" required autocomplete="username">
+        </label>
+        <label>Password
+          <input id="password" type="password" required autocomplete="current-password">
+        </label>
+        <button class="button" type="submit">Login</button>
+      </form>
+
+      <p id="authMessage" role="status"></p>
+      <button id="logoutBtn" class="button secondary hidden" type="button">Logout</button>
+
+      <form id="uploadForm" class="hidden">
+        <h3>Upload Study PDF</h3>
+        <label>Class
+          <select id="pdfClass" required>
+            <option value="10">Class 10</option>
+            <option value="11">Class 11</option>
+            <option value="12">Class 12</option>
+          </select>
+        </label>
+        <label>Subject
+          <input id="pdfSubject" required maxlength="40" placeholder="e.g. Maths">
+        </label>
+        <label>Chapter or PDF title
+          <input id="pdfTitle" required maxlength="70" placeholder="e.g. Real Numbers">
+        </label>
+        <label>Select PDF
+          <input id="pdfFile" type="file" accept="application/pdf,.pdf" required>
+        </label>
+        <button class="button" type="submit">Upload PDF</button>
+      </form>
+    </div>
   </section>
 </main>
+
 <footer>© <span id="year"></span> Study Hub · Learn a little every day.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 </body>
 </html>
+
