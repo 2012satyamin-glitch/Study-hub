@@ -9,24 +9,18 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = (id) => document.getElementById(id);
 
 let currentUser = null;
-let allMaterials = [];
+let materials = [];
 let selectedClass = "All";
 let selectedSubject = "All";
 
 $("year").textContent = new Date().getFullYear();
 
-function setStatus(message) {
-  $("status").textContent = message;
+function isAdmin() {
+  return currentUser?.id === ADMIN_ID;
 }
 
-function safeText(value) {
-  return String(value).replace(/[&<>"']/g, (char) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
+function setStatus(message) {
+  $("status").textContent = message;
 }
 
 function parseFilename(filename) {
@@ -44,8 +38,8 @@ function parseFilename(filename) {
 }
 
 async function loadMaterials() {
-  setStatus("PDFs load ho rahe hain...");
-  $("materials").innerHTML = "";
+  setStatus("Loading PDFs...");
+  $("materials").replaceChildren();
   $("empty").classList.add("hidden");
 
   const { data, error } = await db.storage
@@ -53,147 +47,142 @@ async function loadMaterials() {
     .list("", { limit: 1000 });
 
   if (error) {
-    setStatus("PDFs load nahi hue. Supabase permissions check karo.");
-    console.error(error);
+    setStatus("PDFs load nahi hue: " + error.message);
     return;
   }
 
-  allMaterials = (data || [])
+  materials = (data || [])
     .filter(file => file.name.toLowerCase().endsWith(".pdf"))
     .map(file => {
       const info = parseFilename(file.name);
-      if (!info) return null;
-      return { ...info, filename: file.name };
+      return info ? { ...info, filename: file.name } : null;
     })
     .filter(Boolean);
 
   renderMaterials();
 }
 
-async function renderMaterials() {
-  const searchTerm = $("search").value.trim().toLowerCase();
+function makeButton(label, className, onClick) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = className;
+  button.textContent = label;
+  button.addEventListener("click", onClick);
+  return button;
+}
 
-  const filtered = allMaterials.filter(item => {
-    const classMatch =
+function renderMaterials() {
+  const search = $("search").value.trim().toLowerCase();
+
+  const filtered = materials.filter(item => {
+    const classOK =
       selectedClass === "All" || item.classNo === selectedClass;
-    const subjectMatch =
+    const subjectOK =
       selectedSubject === "All" ||
       item.subject.toLowerCase() === selectedSubject.toLowerCase();
-    const searchMatch =
-      `${item.title} ${item.subject} Class ${item.classNo}`
-        .toLowerCase().includes(searchTerm);
+    const searchOK =
+      `${item.title} ${item.subject} ${item.classNo}`
+        .toLowerCase().includes(search);
 
-    return classMatch && subjectMatch && searchMatch;
+    return classOK && subjectOK && searchOK;
   });
 
-  $("materials").innerHTML = "";
-  $("empty").classList.toggle("hidden", filtered.length !== 0);
+  const container = $("materials");
+  container.replaceChildren();
+  $("empty").classList.toggle("hidden", filtered.length > 0);
 
-  if (filtered.length === 0) {
-    setStatus(`Total PDFs available: ${allMaterials.length}`);
-    return;
-  }
+  setStatus(`Total PDFs available: ${materials.length}`);
 
-  for (const item of filtered) {
+  filtered.forEach(item => {
     const card = document.createElement("article");
     card.className = "material-card";
 
-    const title = document.createElement("h3");
-    title.textContent = item.title;
+    const heading = document.createElement("h3");
+    heading.textContent = item.title;
 
-    const details = document.createElement("p");
-    details.textContent = `Class ${item.classNo} · ${item.subject} · PDF`;
+    const info = document.createElement("p");
+    info.textContent = `Class ${item.classNo} · ${item.subject} · PDF`;
 
-    const openButton = document.createElement("button");
-    openButton.className = "button";
-    openButton.type = "button";
-    openButton.textContent = "View / Download";
+    const viewButton = makeButton("View / Download", "button", async () => {
+      viewButton.disabled = true;
+      viewButton.textContent = "Opening...";
 
-    openButton.addEventListener("click", async () => {
-      openButton.disabled = true;
-      openButton.textContent = "Opening...";
       const { data, error } = await db.storage
         .from(BUCKET)
         .createSignedUrl(item.filename, 3600);
 
-      openButton.disabled = false;
-      openButton.textContent = "View / Download";
+      viewButton.disabled = false;
+      viewButton.textContent = "View / Download";
 
       if (error || !data?.signedUrl) {
-        alert("PDF open nahi hua. Supabase storage permissions check karo.");
-        console.error(error);
+        alert("PDF open nahi hua. Storage SELECT permission check karo.");
         return;
       }
 
       window.open(data.signedUrl, "_blank", "noopener");
     });
 
-    card.append(title, details, openButton);
+    card.append(heading, info, viewButton);
 
-    if (currentUser?.id === ADMIN_ID) {
-      const deleteButton = document.createElement("button");
-      deleteButton.className = "button secondary";
-      deleteButton.type = "button";
-      deleteButton.textContent = "🗑️ Delete";
+    if (isAdmin()) {
+      const deleteButton = makeButton(
+        "🗑️ Delete PDF",
+        "button secondary",
+        async () => {
+          if (!isAdmin()) {
+            alert("Sirf admin delete kar sakta hai.");
+            return;
+          }
 
-      deleteButton.addEventListener("click", async () => {
-        const confirmed = confirm(
-          `"${item.title}" delete karna hai? Yeh action undo nahi hoga.`
-        );
-        if (!confirmed) return;
+          if (!confirm(`Kya "${item.title}" ko permanently delete karna hai?`)) {
+            return;
+          }
 
-        deleteButton.disabled = true;
-        deleteButton.textContent = "Deleting...";
+          deleteButton.disabled = true;
+          deleteButton.textContent = "Deleting...";
 
-        const { error } = await db.storage
-          .from(BUCKET)
-          .remove([item.filename]);
+          const { error } = await db.storage
+            .from(BUCKET)
+            .remove([item.filename]);
 
-        if (error) {
-          alert("Delete nahi hua. Supabase DELETE policy check karo.");
-          console.error(error);
-          deleteButton.disabled = false;
-          deleteButton.textContent = "🗑️ Delete";
-          return;
+          if (error) {
+            alert("Delete nahi hua: " + error.message);
+            deleteButton.disabled = false;
+            deleteButton.textContent = "🗑️ Delete PDF";
+            return;
+          }
+
+          alert("PDF successfully delete ho gaya.");
+          await loadMaterials();
         }
-
-        setStatus("PDF delete ho gaya.");
-        await loadMaterials();
-      });
+      );
 
       card.appendChild(deleteButton);
     }
 
-    $("materials").appendChild(card);
-  }
-
-  setStatus(`Total PDFs available: ${allMaterials.length}`);
+    container.appendChild(card);
+  });
 }
 
 async function updateSession(session) {
   currentUser = session?.user || null;
 
-  const isAdmin = currentUser?.id === ADMIN_ID;
-
   $("loginForm").classList.toggle("hidden", Boolean(currentUser));
   $("logoutBtn").classList.toggle("hidden", !currentUser);
-  $("uploadForm").classList.toggle("hidden", !isAdmin);
+  $("uploadForm").classList.toggle("hidden", !isAdmin());
 
-  if (currentUser && !isAdmin) {
-    $("authMessage").textContent =
-      "Yeh account admin nahi hai. Upload aur delete sirf admin kar sakta hai.";
-  } else {
-    $("authMessage").textContent = isAdmin
-      ? "Admin login successful."
+  $("authMessage").textContent = isAdmin()
+    ? "Admin login successful."
+    : currentUser
+      ? "Yeh admin account nahi hai."
       : "";
-  }
 
-  await renderMaterials();
+  renderMaterials();
 }
 
-$("loginForm").addEventListener("submit", async (event) => {
+$("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
-  $("authMessage").textContent = "Login ho raha hai...";
+  $("authMessage").textContent = "Logging in...";
 
   const { data, error } = await db.auth.signInWithPassword({
     email: $("email").value.trim(),
@@ -209,15 +198,21 @@ $("loginForm").addEventListener("submit", async (event) => {
 });
 
 $("logoutBtn").addEventListener("click", async () => {
-  await db.auth.signOut();
+  const { error } = await db.auth.signOut();
+
+  if (error) {
+    alert("Logout failed: " + error.message);
+    return;
+  }
+
   $("password").value = "";
   await updateSession(null);
 });
 
-$("uploadForm").addEventListener("submit", async (event) => {
+$("uploadForm").addEventListener("submit", async event => {
   event.preventDefault();
 
-  if (currentUser?.id !== ADMIN_ID) {
+  if (!isAdmin()) {
     alert("Sirf admin PDF upload kar sakta hai.");
     return;
   }
@@ -228,13 +223,12 @@ $("uploadForm").addEventListener("submit", async (event) => {
   const title = $("pdfTitle").value.trim();
 
   if (!file || !title) {
-    alert("PDF file aur title select karo.");
+    alert("PDF aur title select karo.");
     return;
   }
 
-  if (file.type !== "application/pdf" &&
-      !file.name.toLowerCase().endsWith(".pdf")) {
-    alert("Sirf PDF file upload kar sakte ho.");
+  if (!file.name.toLowerCase().endsWith(".pdf")) {
+    alert("Sirf PDF file upload karo.");
     return;
   }
 
@@ -243,47 +237,39 @@ $("uploadForm").addEventListener("submit", async (event) => {
     return;
   }
 
-  const safeTitle = title
+  const cleanTitle = title
     .replace(/\.pdf$/i, "")
     .replace(/[^a-zA-Z0-9 -]/g, "")
     .trim()
     .replace(/\s+/g, "-");
 
-  if (!safeTitle) {
+  if (!cleanTitle) {
     alert("PDF title sahi likho.");
     return;
   }
 
-  const filename =
-    `Class-${classNo}__${subject}__${safeTitle}.pdf`;
+  const filename = `Class-${classNo}__${subject}__${cleanTitle}.pdf`;
+  const uploadButton = $("uploadForm").querySelector('[type="submit"]');
 
-  const uploadButton = $("uploadForm").querySelector(
-    'button[type="submit"]'
-  );
   uploadButton.disabled = true;
   uploadButton.textContent = "Uploading...";
 
   const { error } = await db.storage
     .from(BUCKET)
-    .upload(filename, file, {
-      contentType: "application/pdf",
-      upsert: false
-    });
+    .upload(filename, file, { contentType: "application/pdf" });
 
   uploadButton.disabled = false;
   uploadButton.textContent = "Upload PDF";
 
   if (error) {
-    alert(error.message.includes("already exists")
-      ? "Isi naam ki PDF pehle se hai. Title badal kar try karo."
-      : "Upload failed: " + error.message);
-    console.error(error);
+    alert("Upload nahi hua: " + error.message);
     return;
   }
 
   $("pdfTitle").value = "";
   $("pdfFile").value = "";
-  alert("PDF upload successfully!");
+
+  alert("PDF successfully upload ho gaya!");
   await loadMaterials();
 });
 
@@ -292,9 +278,11 @@ $("search").addEventListener("input", renderMaterials);
 document.querySelectorAll("[data-class]").forEach(button => {
   button.addEventListener("click", () => {
     selectedClass = button.dataset.class;
-    document.querySelectorAll("[data-class]").forEach(item =>
-      item.classList.toggle("active", item === button)
-    );
+
+    document.querySelectorAll("[data-class]").forEach(tab => {
+      tab.classList.toggle("active", tab === button);
+    });
+
     renderMaterials();
   });
 });
@@ -302,20 +290,44 @@ document.querySelectorAll("[data-class]").forEach(button => {
 document.querySelectorAll("[data-subject]").forEach(button => {
   button.addEventListener("click", () => {
     selectedSubject = button.dataset.subject;
-    document.querySelectorAll("[data-subject]").forEach(item =>
-      item.classList.toggle("active", item === button)
-    );
+
+    document.querySelectorAll("[data-subject]").forEach(tab => {
+      tab.classList.toggle("active", tab === button);
+    });
+
     renderMaterials();
   });
 });
 
 db.auth.onAuthStateChange((_event, session) => {
-  updateSession(session);
+  currentUser = session?.user || null;
+
+  $("loginForm").classList.toggle("hidden", Boolean(currentUser));
+  $("logoutBtn").classList.toggle("hidden", !currentUser);
+  $("uploadForm").classList.toggle("hidden", !isAdmin());
+
+  $("authMessage").textContent = isAdmin()
+    ? "Admin login successful."
+    : currentUser
+      ? "Yeh admin account nahi hai."
+      : "";
+
+  renderMaterials();
 });
 
 (async () => {
-  const { data } = await db.auth.getSession();
-  await updateSession(data.session);
+  const { data, error } = await db.auth.getSession();
+
+  if (error) {
+    setStatus("Session load nahi hua: " + error.message);
+    return;
+  }
+
+  currentUser = data.session?.user || null;
+
+  $("loginForm").classList.toggle("hidden", Boolean(currentUser));
+  $("logoutBtn").classList.toggle("hidden", !currentUser);
+  $("uploadForm").classList.toggle("hidden", !isAdmin());
+
   await loadMaterials();
 })();
-      
