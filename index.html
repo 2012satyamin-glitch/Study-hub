@@ -1,22 +1,69 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Study Hub | Class 10, 11 & 12</title>
-  <link rel="stylesheet" href="style.css">
+
+  <title>Study Hub | Class 9, 10, 11 & 12</title>
+  <meta name="description" content="Study notes, PDFs and practice material for Classes 9, 10, 11 and 12.">
+  <meta name="theme-color" content="#ff3f9b">
+  <meta name="application-name" content="Study Hub">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./style.css">
+
+  <style>
+    .install-card {
+      margin: 16px;
+      padding: 18px;
+      border: 1px solid #ff3f9b;
+      border-radius: 14px;
+      background: #15121d;
+      color: white;
+      text-align: center;
+    }
+
+    .install-card button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 10px;
+      background: #ff3f9b;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .install-card[hidden] {
+      display: none;
+    }
+  </style>
 </head>
+
 <body>
   <header class="hero">
     <div class="topline">
       <span class="brand">📚 Study Hub</span>
       <span class="admin-label">By Satyam Vishwakarma</span>
     </div>
+
     <h1>Your Study Materials, All in One Place</h1>
-    <p>Notes, PDFs and practice material for Classes 10, 11 and 12.</p>
-    <input id="search" type="search" placeholder="Search notes, subjects or chapters..." aria-label="Search materials">
+    <p>Notes, PDFs and practice material for Classes 9, 10, 11 and 12.</p>
+
+    <input
+      id="search"
+      type="search"
+      placeholder="Search notes, subjects or chapters..."
+      aria-label="Search materials"
+    >
   </header>
+
+  <section id="installCard" class="install-card" hidden>
+    <h2>📲 Install Study Hub</h2>
+    <p>Add Study Hub to your phone's Home Screen.</p>
+    <button id="installBtn" type="button">Install Study Hub</button>
+    <p id="installMessage" role="status" aria-live="polite"></p>
+  </section>
 
   <main>
     <section class="toolbar">
@@ -25,53 +72,64 @@
 
       <h3>Choose Class</h3>
       <div class="tabs" id="classTabs">
-        <button class="tab active" data-class="All">All</button>
-        <button class="tab" data-class="10">Class 10</button>
-        <button class="tab" data-class="11">Class 11</button>
-        <button class="tab" data-class="12">Class 12</button>
+        <button class="tab active" data-class="All" type="button">All</button>
+        <button class="tab" data-class="9" type="button">Class 9</button>
+        <button class="tab" data-class="10" type="button">Class 10</button>
+        <button class="tab" data-class="11" type="button">Class 11</button>
+        <button class="tab" data-class="12" type="button">Class 12</button>
       </div>
 
       <h3>Choose Subject</h3>
       <div class="tabs" id="subjectTabs">
-        <button class="tab active" data-subject="All">All Subjects</button>
-        <button class="tab" data-subject="Maths">Maths</button>
-        <button class="tab" data-subject="Science">Science</button>
-        <button class="tab" data-subject="SST">SST</button>
-        <button class="tab" data-subject="English">English</button>
+        <button class="tab active" data-subject="All" type="button">All Subjects</button>
+        <button class="tab" data-subject="Maths" type="button">Maths</button>
+        <button class="tab" data-subject="Science" type="button">Science</button>
+        <button class="tab" data-subject="SST" type="button">SST</button>
+        <button class="tab" data-subject="English" type="button">English</button>
       </div>
     </section>
 
     <p id="status" role="status" aria-live="polite"></p>
     <section id="materials" class="materials"></section>
-    <section id="empty" class="empty hidden">No PDFs found. Try another class or subject.</section>
+    <section id="empty" class="empty hidden">
+      No PDFs found. Try another class or subject.
+    </section>
 
     <section class="admin-card">
       <h2>🔐 Admin Panel</h2>
       <p>Only the website owner can upload PDFs.</p>
 
       <form id="loginForm">
-        <label>Email
+        <label for="email">Email
           <input id="email" type="email" autocomplete="username" required>
         </label>
-        <label>Password
+
+        <label for="password">Password
           <input id="password" type="password" autocomplete="current-password" required>
         </label>
+
         <button class="button" type="submit">Admin Login</button>
       </form>
 
-      <button id="logoutBtn" class="button secondary hidden" type="button">Logout</button>
+      <button id="logoutBtn" class="button secondary hidden" type="button">
+        Logout
+      </button>
+
       <p id="authMessage" role="status" aria-live="polite"></p>
 
       <form id="uploadForm" class="hidden">
         <h3>Upload a PDF</h3>
-        <label>Class
+
+        <label for="pdfClass">Class
           <select id="pdfClass" required>
+            <option value="9">Class 9</option>
             <option value="10">Class 10</option>
             <option value="11">Class 11</option>
             <option value="12">Class 12</option>
           </select>
         </label>
-        <label>Subject
+
+        <label for="pdfSubject">Subject
           <select id="pdfSubject" required>
             <option value="Maths">Maths</option>
             <option value="Science">Science</option>
@@ -82,20 +140,88 @@
             <option value="Other">Other</option>
           </select>
         </label>
-        <label>PDF title
-          <input id="pdfTitle" type="text" maxlength="70" placeholder="e.g. Real Numbers" required>
+
+        <label for="pdfTitle">PDF title
+          <input
+            id="pdfTitle"
+            type="text"
+            maxlength="70"
+            placeholder="e.g. Real Numbers"
+            required
+          >
         </label>
-        <label>Choose PDF file
+
+        <label for="pdfFile">Choose PDF file
           <input id="pdfFile" type="file" accept=".pdf,application/pdf" required>
         </label>
+
         <button class="button" type="submit">Upload PDF</button>
       </form>
     </section>
   </main>
 
-  <footer>© <span id="year"></span> Study Hub · Learn a little every day.</footer>
+  <footer>
+    © <span id="year"></span> Study Hub · Learn a little every day.
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js"></script>
+  <script src="./app.js"></script>
+
+  <script>
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+
+    const installCard = document.getElementById("installCard");
+    const installBtn = document.getElementById("installBtn");
+    const installMessage = document.getElementById("installMessage");
+
+    let installPrompt = null;
+
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true;
+
+    if (!isStandalone) {
+      installCard.hidden = false;
+    }
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      installPrompt = event;
+      installCard.hidden = false;
+      installMessage.textContent = "";
+    });
+
+    installBtn.addEventListener("click", async () => {
+      if (!installPrompt) {
+        installMessage.textContent =
+          "Install option is not available yet. Check the manifest, app icons and service worker.";
+        return;
+      }
+
+      installPrompt.prompt();
+      const result = await installPrompt.userChoice;
+
+      installMessage.textContent =
+        result.outcome === "accepted"
+          ? "Installation accepted."
+          : "Installation cancelled. You can try again.";
+
+      installPrompt = null;
+    });
+
+    window.addEventListener("appinstalled", () => {
+      installCard.hidden = true;
+      installMessage.textContent = "Study Hub installed successfully!";
+    });
+
+    if ("serviceWorker" in navigator && location.protocol === "https:") {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch((error) => {
+          console.error("Service worker registration failed:", error);
+        });
+      });
+    }
+  </script>
 </body>
 </html>
