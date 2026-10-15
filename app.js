@@ -8,31 +8,39 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const $ = id => document.getElementById(id);
 let currentClass = "All";
+let currentSubject = "All";
 let materials = [];
 
 $("year").textContent = new Date().getFullYear();
 
-function message(text) {
+function setStatus(text) {
+  $("status").textContent = text;
+}
+
+function setAuthMessage(text) {
   $("authMessage").textContent = text;
 }
 
-function cleanName(value) {
-  return value.trim().replace(/[^a-zA-Z0-9-]/g, "-").replace(/-+/g, "-").slice(0, 70);
-}
-
-function displayName(value) {
-  return value.replace(/\.pdf$/i, "").replace(/-/g, " ");
+function safeText(value) {
+  return String(value ?? "");
 }
 
 function render() {
   const query = $("search").value.trim().toLowerCase();
-  const filtered = materials.filter(item =>
-    (currentClass === "All" || item.className === currentClass) &&
-    `${item.title} ${item.subject} ${item.className}`.toLowerCase().includes(query)
-  );
 
-  $("materials").innerHTML = "";
-  $("empty").classList.toggle("hidden", filtered.length > 0);
+  const filtered = materials.filter(item => {
+    const matchesClass =
+      currentClass === "All" || item.className === currentClass;
+    const matchesSubject =
+      currentSubject === "All" || item.subject.toLowerCase() === currentSubject.toLowerCase();
+    const matchesSearch =
+      `${item.title} ${item.subject} ${item.className}`.toLowerCase().includes(query);
+
+    return matchesClass && matchesSubject && matchesSearch;
+  });
+
+  const container = $("materials");
+  container.replaceChildren();
 
   filtered.forEach(item => {
     const card = document.createElement("article");
@@ -47,46 +55,54 @@ function render() {
     const link = document.createElement("a");
     link.href = item.url;
     link.target = "_blank";
-    link.rel = "noopener";
-    link.textContent = "View / Download PDF";
+    link.rel = "noopener noreferrer";
     link.className = "button";
+    link.textContent = "View / Download PDF";
 
     card.append(heading, detail, link);
-    $("materials").append(card);
+    container.append(card);
   });
+
+  $("empty").classList.toggle("hidden", filtered.length !== 0);
 }
 
 async function loadMaterials() {
+  setStatus("Loading PDFs...");
+
   const { data, error } = await db.storage.from(BUCKET).list("", {
     limit: 100,
-    sortBy: { column: "created_at", order: "desc" }
+    sortBy: { column: "name", order: "asc" }
   });
 
   if (error) {
-    message("PDF list load nahi hui: " + error.message);
+    setStatus("PDFs load nahi hui. Bucket name aur public listing policy check karni hogi.");
+    console.error(error);
     return;
   }
 
   materials = (data || [])
     .filter(file => file.name.toLowerCase().endsWith(".pdf"))
     .map(file => {
-      const parts = file.name.split("__");
-      if (parts.length < 3) return null;
+      const match = file.name.match(/^Class-(10|11|12)__([^_]+)__(.+)\.pdf$/i);
+      if (!match) return null;
 
-      const className = parts[0].replace(/^Class-/, "");
-      if (!["10", "11", "12"].includes(className)) return null;
+      const className = match[1];
+      const subject = match[2].replace(/-/g, " ");
+      const title = match[3].replace(/-/g, " ");
 
-      const { data: publicData } = db.storage.from(BUCKET).getPublicUrl(file.name);
+      const { data: publicData } =
+        db.storage.from(BUCKET).getPublicUrl(file.name);
 
       return {
         className,
-        subject: displayName(parts[1]),
-        title: displayName(parts.slice(2).join("__")),
+        subject,
+        title,
         url: publicData.publicUrl
       };
     })
     .filter(Boolean);
 
+  setStatus(`${materials.length} PDF(s) available`);
   render();
 }
 
@@ -98,18 +114,18 @@ async function updateSession(session) {
   $("logoutBtn").classList.toggle("hidden", !user);
   $("uploadForm").classList.toggle("hidden", !isAdmin);
 
-  if (user && !isAdmin) {
-    message("Ye account admin nahi hai. Upload permission nahi hai.");
-  } else if (isAdmin) {
-    message("Admin login successful. Ab PDF upload kar sakte ho.");
+  if (isAdmin) {
+    setAuthMessage("Admin login successful. You can upload PDFs.");
+  } else if (user) {
+    setAuthMessage("This account is not the website admin.");
   } else {
-    message("PDF dekhne ke liye login zaroori nahi hai.");
+    setAuthMessage("Admin login is required to upload PDFs.");
   }
 }
 
 $("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
-  message("Logging in...");
+  setAuthMessage("Logging in...");
 
   const { data, error } = await db.auth.signInWithPassword({
     email: $("email").value.trim(),
@@ -117,7 +133,8 @@ $("loginForm").addEventListener("submit", async event => {
   });
 
   if (error) {
-    message("Login failed: " + error.message);
+    setAuthMessage("Login failed. Check your email and password.");
+    console.error(error);
     return;
   }
 
@@ -126,44 +143,54 @@ $("loginForm").addEventListener("submit", async event => {
 
 $("logoutBtn").addEventListener("click", async () => {
   const { error } = await db.auth.signOut();
-  message(error ? error.message : "Logged out.");
-  if (!error) await updateSession(null);
+  if (error) {
+    setAuthMessage("Logout failed.");
+    return;
+  }
+  await updateSession(null);
 });
 
 $("uploadForm").addEventListener("submit", async event => {
   event.preventDefault();
 
-  const { data: sessionData } = await db.auth.getSession();
-  const user = sessionData.session?.user;
+  const { data: sessionData, error: sessionError } = await db.auth.getSession();
+  const user = sessionData?.session?.user;
 
-  if (!user || user.id !== ADMIN_ID) {
-    message("Admin login required.");
+  if (sessionError || !user || user.id !== ADMIN_ID) {
+    setAuthMessage("Only the admin account can upload PDFs.");
     return;
   }
 
   const file = $("pdfFile").files[0];
   if (!file || (!file.name.toLowerCase().endsWith(".pdf") &&
       file.type !== "application/pdf")) {
-    message("Please select a PDF file.");
+    setAuthMessage("Please choose a PDF file.");
     return;
   }
 
   if (file.size > 20 * 1024 * 1024) {
-    message("PDF size 20 MB se kam honi chahiye.");
+    setAuthMessage("File size must be under 20 MB.");
     return;
   }
 
   const className = $("pdfClass").value;
-  const subject = cleanName($("pdfSubject").value);
-  const title = cleanName($("pdfTitle").value);
+  const subject = $("pdfSubject").value;
+  const title = $("pdfTitle").value.trim()
+    .replace(/\.pdf$/i, "")
+    .replace(/[^a-zA-Z0-9 -]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .slice(0, 70);
 
-  if (!subject || !title) {
-    message("Subject aur title sahi bharo.");
+  if (!title) {
+    setAuthMessage("Please enter a PDF title.");
     return;
   }
 
-  const path = `Class-${className}__${subject}__${title}.pdf`;
-  message("PDF upload ho rahi hai...");
+  const safeSubject = subject.replace(/[^a-zA-Z0-9-]/g, "-");
+  const path = `Class-${className}__${safeSubject}__${title}.pdf`;
+
+  setAuthMessage("Uploading PDF...");
 
   const { error } = await db.storage.from(BUCKET).upload(path, file, {
     contentType: "application/pdf",
@@ -171,23 +198,34 @@ $("uploadForm").addEventListener("submit", async event => {
   });
 
   if (error) {
-    message("Upload failed: " + error.message);
+    setAuthMessage("Upload failed. Check the bucket name and upload policy.");
+    console.error(error);
     return;
   }
 
-  message("PDF upload successful!");
+  setAuthMessage("PDF uploaded successfully!");
   $("uploadForm").reset();
   await loadMaterials();
 });
 
 $("search").addEventListener("input", render);
 
-document.querySelectorAll(".tab").forEach(button => {
+document.querySelectorAll("[data-class]").forEach(button => {
   button.addEventListener("click", () => {
     currentClass = button.dataset.class;
-    document.querySelectorAll(".tab").forEach(tab =>
-      tab.classList.toggle("active", tab === button)
-    );
+    document.querySelectorAll("[data-class]").forEach(tab => {
+      tab.classList.toggle("active", tab === button);
+    });
+    render();
+  });
+});
+
+document.querySelectorAll("[data-subject]").forEach(button => {
+  button.addEventListener("click", () => {
+    currentSubject = button.dataset.subject;
+    document.querySelectorAll("[data-subject]").forEach(tab => {
+      tab.classList.toggle("active", tab === button);
+    });
     render();
   });
 });
@@ -201,8 +239,4 @@ db.auth.onAuthStateChange((_event, session) => {
   await updateSession(data.session);
   await loadMaterials();
 })();
-                   
-
-
-
-
+      
