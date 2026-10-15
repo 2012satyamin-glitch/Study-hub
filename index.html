@@ -2,97 +2,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Study Hub | Class 10, 11 & 12</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Study Hub | Class 10, 11 & 12</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="hero">
-  <div class="topline">
-    <span class="brand">📚 Study Hub</span>
-    <span class="admin-label">By Satyam Vishwakarma</span>
-  </div>
-  <h1>Your Study Materials, All in One Place</h1>
-  <p>Notes, PDFs and practice material for Classes 10, 11 and 12.</p>
-  <label class="search-wrap">
-    <span>⌕</span>
-    <input id="search" type="search" placeholder="Search notes, subjects or chapters…">
-  </label>
-</header>
+  <header class="hero">
+    <div class="topline">
+      <span class="brand">📚 Study Hub</span>
+      <span class="admin-label">By Satyam Vishwakarma</span>
+    </div>
+    <h1>Your Study Materials, All in One Place</h1>
+    <p>Notes, PDFs and practice material for Classes 10, 11 and 12.</p>
+    <input id="search" type="search" placeholder="Search notes, subjects or chapters..." aria-label="Search materials">
+  </header>
 
-<main>
-  <section class="toolbar">
-    <div>
+  <main>
+    <section class="toolbar">
       <h2>Study Materials</h2>
-      <p class="muted">Choose your class to explore resources.</p>
-    </div>
-    <div class="tabs">
-      <button class="tab active" data-class="All">All</button>
-      <button class="tab" data-class="10">Class 10</button>
-      <button class="tab" data-class="11">Class 11</button>
-      <button class="tab" data-class="12">Class 12</button>
-    </div>
-  </section>
+      <p>Choose your class and subject.</p>
 
-  <section id="materials" class="materials"></section>
-  <section class="empty hidden" id="empty">No materials found.</section>
+      <h3>Choose Class</h3>
+      <div class="tabs" id="classTabs">
+        <button class="tab active" data-class="All">All</button>
+        <button class="tab" data-class="10">Class 10</button>
+        <button class="tab" data-class="11">Class 11</button>
+        <button class="tab" data-class="12">Class 12</button>
+      </div>
 
-  <section class="admin-card">
-    <div class="admin-copy">
-      <h2>🔐 Admin Login</h2>
-      <p>Only the website administrator can upload PDFs.</p>
+      <h3>Choose Subject</h3>
+      <div class="tabs" id="subjectTabs">
+        <button class="tab active" data-subject="All">All Subjects</button>
+        <button class="tab" data-subject="Maths">Maths</button>
+        <button class="tab" data-subject="Science">Science</button>
+        <button class="tab" data-subject="SST">SST</button>
+        <button class="tab" data-subject="English">English</button>
+      </div>
+    </section>
+
+    <p id="status" role="status" aria-live="polite"></p>
+    <section id="materials" class="materials"></section>
+    <section id="empty" class="empty hidden">No PDFs found. Try another class or subject.</section>
+
+    <section class="admin-card">
+      <h2>🔐 Admin Panel</h2>
+      <p>Only the website owner can upload PDFs.</p>
 
       <form id="loginForm">
         <label>Email
-          <input id="email" type="email" required autocomplete="username">
+          <input id="email" type="email" autocomplete="username" required>
         </label>
         <label>Password
-          <input id="password" type="password" required autocomplete="current-password">
+          <input id="password" type="password" autocomplete="current-password" required>
         </label>
-        <button class="button" type="submit">Login</button>
+        <button class="button" type="submit">Admin Login</button>
       </form>
 
-      <p id="authMessage" role="status"></p>
       <button id="logoutBtn" class="button secondary hidden" type="button">Logout</button>
+      <p id="authMessage" role="status" aria-live="polite"></p>
 
       <form id="uploadForm" class="hidden">
-        <h3>Upload Study PDF</h3>
+        <h3>Upload a PDF</h3>
         <label>Class
           <select id="pdfClass" required>
             <option value="10">Class 10</option>
             <option value="11">Class 11</option>
             <option value="12">Class 12</option>
           </select>
-          
         </label>
         <label>Subject
-          <input id="pdfSubject" required maxlength="40" placeholder="e.g. Maths">
+          <select id="pdfSubject" required>
+            <option value="Maths">Maths</option>
+            <option value="Science">Science</option>
+            <option value="SST">SST</option>
+            <option value="English">English</option>
+            <option value="Hindi">Hindi</option>
+            <option value="IT">IT</option>
+            <option value="Other">Other</option>
+          </select>
         </label>
-        <label>Chapter or PDF title
-          <input id="pdfTitle" required maxlength="70" placeholder="e.g. Real Numbers">
+        <label>PDF title
+          <input id="pdfTitle" type="text" maxlength="70" placeholder="e.g. Real Numbers" required>
         </label>
-        <label>Select PDF
-          <input id="pdfFile" type="file" accept="application/pdf,.pdf" required>
+        <label>Choose PDF file
+          <input id="pdfFile" type="file" accept=".pdf,application/pdf" required>
         </label>
         <button class="button" type="submit">Upload PDF</button>
       </form>
-    </div>
-  </section>
-</main>
+    </section>
+  </main>
 
-<footer>© <span id="year"></span> Study Hub · Learn a little every day.</footer>
+  <footer>© <span id="year"></span> Study Hub · Learn a little every day.</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
 </body>
 </html>
-
-<div class="tabs" id="subjectTabs" role="group" aria-label="Choose subject">
-  <button class="tab active" data-subject="All">All Subjects</button>
-  <button class="tab" data-subject="Maths">Maths</button>
-  <button class="tab" data-subject="Science">Science</button>
-  <button class="tab" data-subject="SST">SST</button>
-  <button class="tab" data-subject="English">English</button>
-</div>
-
