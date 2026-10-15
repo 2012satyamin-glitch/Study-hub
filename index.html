@@ -64,6 +64,7 @@
             <option value="11">Class 11</option>
             <option value="12">Class 12</option>
           </select>
+          
         </label>
         <label>Subject
           <input id="pdfSubject" required maxlength="40" placeholder="e.g. Maths">
@@ -86,4 +87,12 @@
 <script src="app.js"></script>
 </body>
 </html>
+
+<div class="tabs" id="subjectTabs" role="group" aria-label="Choose subject">
+  <button class="tab active" data-subject="All">All Subjects</button>
+  <button class="tab" data-subject="Maths">Maths</button>
+  <button class="tab" data-subject="Science">Science</button>
+  <button class="tab" data-subject="SST">SST</button>
+  <button class="tab" data-subject="English">English</button>
+</div>
 
