@@ -1,199 +1,199 @@
 
+:root {
+  --pink: #ff2f92;
+  --light-pink: #ff80bd;
+  --black: #09090f;
+  --panel: #19121f;
+  --text: #fff5fb;
+  --muted: #d2b9ca;
+}
+
 * {
   box-sizing: border-box;
 }
 
-:root {
-  font-family: Arial, Helvetica, sans-serif;
-  color: #172033;
-  background: #f4f7fb;
-}
-
 body {
   margin: 0;
-  line-height: 1.5;
+  font-family: Arial, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at 0% 15%, #ff2f9245, transparent 40%),
+    radial-gradient(ellipse at 100% 65%, #ff2f9230, transparent 40%),
+    linear-gradient(135deg, #08080d 0%, #21101f 50%, #09090f 100%);
+  line-height: 1.6;
 }
 
 .hero {
-  background: linear-gradient(135deg, #102a56, #2563a8);
-  color: white;
-  padding: 28px 18px 36px;
+  padding: 30px 18px 42px;
   text-align: center;
+  background: linear-gradient(120deg, #08080df5, #4b1235e8, #08080df5);
+  border-bottom: 1px solid #ff2f9270;
 }
 
 .topline {
-  max-width: 1000px;
-  margin: 0 auto 35px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
   flex-wrap: wrap;
+  gap: 12px;
+  max-width: 1050px;
+  margin: auto;
 }
 
 .brand {
-  font-size: 22px;
+  color: var(--light-pink);
+  font-size: 25px;
   font-weight: 800;
 }
 
 .admin-label {
-  font-size: 14px;
+  color: #ffacd2;
 }
 
 .hero h1 {
-  margin: 0 auto 12px;
-  max-width: 700px;
-  font-size: clamp(28px, 5vw, 42px);
+  max-width: 750px;
+  margin: 38px auto 12px;
+  font-size: clamp(28px, 5vw, 46px);
+  line-height: 1.2;
+  background: linear-gradient(90deg, #ffffff, #ff80bd, #ff2f92);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
-.hero p {
-  color: #e0eaff;
+.hero p,
+.toolbar p,
+.material-card p,
+.admin-card p {
+  color: var(--muted);
 }
 
 #search {
-  width: min(100%, 580px);
+  width: min(100%, 620px);
   padding: 14px 16px;
-  border: 0;
+  margin-top: 18px;
+  border: 1px solid var(--pink);
   border-radius: 12px;
-  margin-top: 14px;
+  background: #0c0a11;
+  color: white;
   font-size: 16px;
+  outline: none;
 }
 
 main {
-  max-width: 1000px;
+  width: min(1100px, 92%);
   margin: 28px auto;
-  padding: 0 16px;
 }
 
 .toolbar,
 .admin-card {
-  background: white;
-  border: 1px solid #e1e7f0;
-  border-radius: 16px;
   padding: 22px;
   margin-bottom: 24px;
-  box-shadow: 0 4px 16px #15294a0b;
+  border: 1px solid #ff2f9245;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #17121c, #291323, #111018);
+  box-shadow: 0 10px 30px #00000035;
 }
 
-h2 {
-  margin-top: 0;
-}
-
-h3 {
-  margin-bottom: 10px;
-}
-
-.toolbar p {
-  color: #657188;
+.toolbar h2,
+.admin-card h2,
+.material-card h3 {
+  color: var(--light-pink);
 }
 
 .tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 9px;
-  margin: 12px 0 22px;
+  gap: 10px;
+  margin: 12px 0 24px;
 }
 
 .tab {
-  border: 1px solid #d6deeb;
-  background: #f8fafc;
-  color: #24344d;
-  padding: 10px 15px;
+  padding: 9px 15px;
+  border: 1px solid #604052;
   border-radius: 10px;
+  background: #110e16;
+  color: white;
   cursor: pointer;
-  font-size: 14px;
 }
 
+.tab:hover,
 .tab.active {
-  background: #1e5ca8;
-  color: white;
-  border-color: #1e5ca8;
+  border-color: var(--pink);
+  background: linear-gradient(110deg, #ff2f92, #ff80bd);
+  color: #160811;
+  font-weight: bold;
 }
 
 .materials {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 18px;
+  margin: 20px 0 28px;
 }
 
 .material-card {
-  background: white;
   padding: 20px;
-  border-radius: 14px;
-  border: 1px solid #e0e6ef;
+  border: 1px solid #ff2f9255;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #20131f, #101016 70%);
+  box-shadow: 0 8px 25px #00000045;
   overflow-wrap: anywhere;
-}
-
-.material-card h3 {
-  margin-top: 0;
-}
-
-.material-card p {
-  color: #667085;
 }
 
 .button {
   display: inline-block;
-  background: #1e5ca8;
-  color: white;
-  border: 0;
-  border-radius: 9px;
-  padding: 11px 16px;
-  font-size: 15px;
-  text-decoration: none;
+  padding: 11px 15px;
+  margin: 5px 5px 5px 0;
+  border: 1px solid var(--pink);
+  border-radius: 10px;
+  background: linear-gradient(110deg, #ff2f92, #ff80bd);
+  color: #180812;
+  font-size: 14px;
+  font-weight: bold;
   cursor: pointer;
 }
 
 .button:hover {
-  background: #164781;
+  filter: brightness(1.12);
+  box-shadow: 0 0 16px #ff2f9260;
 }
 
-.secondary {
-  background: #5a6679;
+.button.secondary {
+  background: #120d15;
+  color: #ff80bd;
+  border-color: var(--pink);
 }
 
-label {
+.admin-card label {
   display: block;
-  font-weight: 600;
   margin: 14px 0;
 }
 
-input,
-select {
+.admin-card input,
+.admin-card select {
   display: block;
   width: 100%;
-  margin-top: 7px;
+  margin-top: 6px;
   padding: 12px;
-  border: 1px solid #ccd5e2;
-  border-radius: 9px;
-  font: inherit;
-  background: white;
+  border: 1px solid #674057;
+  border-radius: 10px;
+  background: #100c14;
+  color: white;
 }
 
-input[type="file"] {
-  padding: 10px;
-}
-
-.admin-card {
-  margin-top: 28px;
-}
-
-.admin-card form {
-  max-width: 500px;
-}
-
-#status,
-#authMessage {
-  overflow-wrap: anywhere;
+#status {
+  color: var(--light-pink);
 }
 
 .empty {
-  background: white;
   padding: 24px;
-  border-radius: 12px;
+  margin: 18px 0;
+  border: 1px dashed var(--pink);
+  border-radius: 14px;
+  background: #1a101b;
+  color: var(--muted);
   text-align: center;
-  margin-bottom: 24px;
 }
 
 .hidden {
@@ -201,30 +201,28 @@ input[type="file"] {
 }
 
 footer {
+  padding: 24px 15px;
+  border-top: 1px solid #ff2f9255;
+  background: linear-gradient(90deg, #08080d, #321126, #08080d);
+  color: #e8c6d8;
   text-align: center;
-  color: #68758a;
-  padding: 25px 15px;
 }
 
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-select:focus-visible {
-  outline: 3px solid #f2b84b;
-  outline-offset: 2px;
-}
+@media (max-width: 600px) {
+  .hero {
+    padding: 22px 14px 30px;
+  }
 
-@media (max-width: 520px) {
   .topline {
     justify-content: center;
+  }
+
+  main {
+    width: 94%;
   }
 
   .toolbar,
   .admin-card {
     padding: 16px;
   }
-
-  .tab {
-    flex: 1 1 auto;
-  }
-  }
+    }
