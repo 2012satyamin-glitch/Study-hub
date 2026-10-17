@@ -17,7 +17,53 @@
   </header>
 
   <main>
-    <section class="card">
+    
+<section class="card">
+  <h2>Admin Login / Upload</h2>
+
+  <form id="loginForm">
+    <input id="adminEmail" type="email"
+      placeholder="Admin email" required>
+
+    <input id="adminPassword" type="password"
+      placeholder="Admin password" required>
+
+    <button type="submit">Login</button>
+  </form>
+
+  <p id="adminMessage" class="muted"></p>
+
+  <form id="uploadForm" hidden>
+    <label for="pdfClass">Select Class</label>
+    <select id="pdfClass" required>
+      <option value="9">Class 9</option>
+      <option value="10">Class 10</option>
+      <option value="11">Class 11</option>
+      <option value="12">Class 12</option>
+    </select>
+
+    <label for="pdfSubject">Select Subject</label>
+    <select id="pdfSubject" required>
+      <option>Maths</option>
+      <option>Science</option>
+      <option>SST</option>
+      <option>English</option>
+      <option>Hindi</option>
+      <option>IT</option>
+      <option>Other</option>
+    </select>
+
+    <input id="pdfTitle" type="text"
+      placeholder="PDF title" required>
+
+    <input id="pdfFile" type="file"
+      accept=".pdf,application/pdf" required>
+
+    <button type="submit">Upload PDF</button>
+    <button type="button" id="logoutButton">Logout</button>
+  </form>
+</section>
+    
       <h2>🔎 Search Study Materials</h2>
       <input
         id="search"
