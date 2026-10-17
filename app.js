@@ -11,11 +11,17 @@ let allFiles = [];
 
 const materials = document.getElementById("materials");
 const search = document.getElementById("search");
+const loginForm = document.getElementById("loginForm");
+const uploadForm = document.getElementById("uploadForm");
+const message = document.getElementById("adminMessage");
 
-function isAdmin() {
-  return db.auth.getUser().then(({ data }) =>
-    data.user && data.user.id === ADMIN_ID
-  );
+function showMessage(text) {
+  message.textContent = text;
+}
+
+async function isAdmin() {
+  const { data, error } = await db.auth.getUser();
+  return !error && data.user && data.user.id === ADMIN_ID;
 }
 
 function renderFiles() {
@@ -60,7 +66,7 @@ async function loadMaterials() {
     .list("", { limit: 1000 });
 
   if (error) {
-    materials.textContent = "Could not load PDFs. Check bucket permissions.";
+    materials.textContent = "Could not load PDFs: " + error.message;
     console.error(error);
     return;
   }
@@ -83,125 +89,109 @@ document.querySelectorAll(".class-btn").forEach(button => {
 
 search.addEventListener("input", renderFiles);
 
-// Create admin login and upload interface
-const adminCard = [...document.querySelectorAll(".card")]
-  .find(card => card.textContent.includes("Admin Upload"));
+// Login: use the form already present in index.html
+loginForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  showMessage("Signing in...");
 
-if (adminCard) {
-  adminCard.innerHTML = `
-    <h2>Admin Login / Upload</h2>
-    <form id="loginForm">
-      <input id="adminEmail" type="email" placeholder="Admin email" required>
-      <input id="adminPassword" type="password" placeholder="Admin password" required>
-      <button type="submit">Login</button>
-    </form>
-    <p id="adminMessage" class="muted"></p>
-    <form id="uploadForm" hidden>
-      <label for="pdfClass">Select class</label>
-      <select id="pdfClass" required>
-        <option value="9">Class 9</option>
-        <option value="10" selected>Class 10</option>
-        <option value="11">Class 11</option>
-        <option value="12">Class 12</option>
-      </select>
-      <label for="pdfSubject">Subject</label>
-      <select id="pdfSubject" required>
-        <option>Maths</option>
-        <option>Science</option>
-        <option>SST</option>
-        <option>English</option>
-        <option>Hindi</option>
-        <option>IT</option>
-        <option>Other</option>
-      </select>
-      <input id="pdfTitle" type="text" placeholder="PDF title" required>
-      <input id="pdfFile" type="file" accept="application/pdf,.pdf" required>
-      <button type="submit">Upload PDF</button>
-      <button type="button" id="logoutButton">Logout</button>
-    </form>
-  `;
+  const email = document.getElementById("adminEmail").value.trim();
+  const password = document.getElementById("adminPassword").value;
 
-  const message = document.getElementById("adminMessage");
-  const uploadForm = document.getElementById("uploadForm");
-
-  document.getElementById("loginForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    message.textContent = "Signing in...";
-
-    const { data, error } = await db.auth.signInWithPassword({
-      email: document.getElementById("adminEmail").value.trim(),
-      password: document.getElementById("adminPassword").value
-    });
-
-    if (error) {
-      message.textContent = "Login failed: " + error.message;
-      return;
-    }
-
-    if (data.user.id !== ADMIN_ID) {
-      await db.auth.signOut();
-      message.textContent = "This account is not the authorized admin.";
-      return;
-    }
-
-    message.textContent = "Admin login successful.";
-    uploadForm.hidden = false;
-    document.getElementById("loginForm").hidden = true;
+  const { data, error } = await db.auth.signInWithPassword({
+    email,
+    password
   });
 
-  uploadForm.addEventListener("submit", async event => {
-    event.preventDefault();
+  if (error) {
+    showMessage("Login failed: " + error.message);
+    return;
+  }
 
-    if (!(await isAdmin())) {
-      message.textContent = "Please log in with the admin account.";
-      return;
-    }
-
-    const file = document.getElementById("pdfFile").files[0];
-    if (!file || file.type !== "application/pdf") {
-      message.textContent = "Please select a PDF file.";
-      return;
-    }
-
-    const className = document.getElementById("pdfClass").value;
-    const subject = document.getElementById("pdfSubject").value;
-    const title = document.getElementById("pdfTitle").value.trim()
-      .replace(/[^a-zA-Z0-9 _-]/g, "")
-      .trim();
-
-    if (!title) {
-      message.textContent = "Enter a valid PDF title.";
-      return;
-    }
-
-    const safeTitle = title.replace(/\s+/g, "_");
-    const filename = `Class-${className}__${subject}__${safeTitle}.pdf`;
-
-    message.textContent = "Uploading PDF...";
-
-    const { error } = await db.storage.from(BUCKET).upload(
-      filename,
-      file,
-      { contentType: "application/pdf", upsert: false }
-    );
-
-    if (error) {
-      message.textContent = "Upload failed: " + error.message;
-      return;
-    }
-
-    message.textContent = "PDF uploaded successfully!";
-    uploadForm.reset();
-    await loadMaterials();
-  });
-
-  document.getElementById("logoutButton").addEventListener("click", async () => {
+  if (!data.user || data.user.id !== ADMIN_ID) {
     await db.auth.signOut();
+    showMessage("This account is not the authorized admin.");
+    return;
+  }
+
+  showMessage("Admin login successful!");
+  loginForm.hidden = true;
+  uploadForm.hidden = false;
+});
+
+// PDF upload
+uploadForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  showMessage("Checking admin account...");
+
+  if (!(await isAdmin())) {
+    showMessage("Please log in with the authorized admin account.");
+    return;
+  }
+
+  const file = document.getElementById("pdfFile").files[0];
+
+  if (!file || (file.type !== "application/pdf" &&
+      !file.name.toLowerCase().endsWith(".pdf"))) {
+    showMessage("Please select a PDF file.");
+    return;
+  }
+
+  const className = document.getElementById("pdfClass").value;
+  const subject = document.getElementById("pdfSubject").value;
+  const title = document.getElementById("pdfTitle").value.trim()
+    .replace(/[^a-zA-Z0-9 _-]/g, "")
+    .trim();
+
+  if (!title) {
+    showMessage("Enter a valid PDF title.");
+    return;
+  }
+
+  const safeTitle = title.replace(/\s+/g, "_");
+  const filename =
+    `Class-${className}__${subject}__${safeTitle}.pdf`;
+
+  showMessage("Uploading PDF...");
+
+  const { error } = await db.storage.from(BUCKET).upload(
+    filename,
+    file,
+    { contentType: "application/pdf", upsert: false }
+  );
+
+  if (error) {
+    showMessage("Upload failed: " + error.message);
+    return;
+  }
+
+  showMessage("PDF uploaded successfully!");
+  uploadForm.reset();
+  await loadMaterials();
+});
+
+// Logout
+document.getElementById("logoutButton").addEventListener(
+  "click",
+  async () => {
+    const { error } = await db.auth.signOut();
+
     uploadForm.hidden = true;
-    document.getElementById("loginForm").hidden = false;
-    message.textContent = "Logged out.";
-  });
+    loginForm.hidden = false;
+    showMessage(error ? error.message : "Logged out.");
+  }
+);
+
+// Restore login state after refresh
+async function restoreSession() {
+  if (await isAdmin()) {
+    loginForm.hidden = true;
+    uploadForm.hidden = false;
+    showMessage("Admin session restored.");
+  } else {
+    loginForm.hidden = false;
+    uploadForm.hidden = true;
+  }
 }
 
+restoreSession();
 loadMaterials();
-                          
