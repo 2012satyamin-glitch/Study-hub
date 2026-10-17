@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Hub</title>
+  <meta name="description" content="Study Hub - Class 9 to 12 study materials and PDFs">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fc;
+      color: #172554;
+    }
+    header {
+      background: #173b8f;
+      color: white;
+      padding: 24px 16px;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 8px; }
+    header p { margin: 0; }
+    main { max-width: 850px; margin: auto; padding: 20px 14px; }
+    .card {
+      background: white;
+      padding: 18px;
+      margin-bottom: 18px;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px #0000000d;
+    }
+    h2 { margin-top: 0; }
+    .classes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    button, select, input {
+      font: inherit;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    button {
+      border: 0;
+      background: #2455c3;
+      color: white;
+      cursor: pointer;
+    }
+    .class-btn { min-height: 65px; font-weight: bold; }
+    input, select { width: 100%; border: 1px solid #cbd5e1; background: white; }
+    .material {
+      padding: 14px 0;
+      border-bottom: 1px solid #e2e8f0;
+      overflow-wrap: anywhere;
+    }
+    .material a { color: #2455c3; margin-right: 14px; }
+    .muted { color: #64748b; }
+    footer { text-align: center; padding: 20px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📚 Study Hub</h1>
+    <p>Your learning space | Class 9–12</p>
+    <p>Admin: Satyam Vishwakarma</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Select Your Class</h2>
+      <div class="classes">
+        <button class="class-btn" data-class="9">Class 9</button>
+        <button class="class-btn" data-class="10">Class 10</button>
+        <button class="class-btn" data-class="11">Class 11</button>
+        <button class="class-btn" data-class="12">Class 12</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 id="materialsTitle">Study Materials</h2>
+      <input id="search" type="search" placeholder="Search study materials...">
+      <div id="materials">
+        <p class="muted">Select a class to view materials.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Admin Upload</h2>
+      <p class="muted">Admin upload will be enabled after secure Supabase setup.</p>
+      <p>Students can browse materials here once the storage connection is configured.</p>
+    </section>
+  </main>
+
+  <footer>© 2026 Study Hub</footer>
+
+  <script>
+    let selectedClass = "";
+    const materials = document.getElementById("materials");
+    const search = document.getElementById("search");
+
+    document.querySelectorAll(".class-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        selectedClass = button.dataset.class;
+        document.getElementById("materialsTitle").textContent =
+          "Class " + selectedClass + " Materials";
+        materials.innerHTML =
+          '<p class="muted">Storage connection will be added in the next step.</p>';
+      });
+    });
+
+    search.addEventListener("input", () => {
+      const message = materials.querySelector(".muted");
+      if (message && search.value.trim()) {
+        message.textContent = "Search will work after materials are connected.";
+      }
+    });
+  </script>
+</body>
+</html>
