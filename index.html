@@ -6,12 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#000000">
   <title>Study Hub | Satyam Vishwakarma</title>
-
   <link rel="stylesheet" href="style.css">
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 <body>
   <header>
     <h1>📚 Study Hub</h1>
@@ -20,27 +17,41 @@
   </header>
 
   <main>
+    <section class="card">
+      <h2>🔎 Search Study Materials</h2>
+      <input id="search" type="search"
+        placeholder="Search PDF by name..." aria-label="Search PDFs">
+    </section>
 
-    <!-- ADMIN LOGIN AND PDF UPLOAD -->
+    <section class="card">
+      <h2>Select Your Class</h2>
+      <div class="classes">
+        <button type="button" class="class-btn" data-class="9">Class 9</button>
+        <button type="button" class="class-btn" data-class="10">Class 10</button>
+        <button type="button" class="class-btn" data-class="11">Class 11</button>
+        <button type="button" class="class-btn" data-class="12">Class 12</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 id="materialsTitle">All Study Materials</h2>
+      <div id="materials">
+        <p class="muted">Loading PDFs...</p>
+      </div>
+    </section>
+
+    <!-- ADMIN SECTION AT THE BOTTOM -->
     <section class="card">
       <h2>Admin Login / Upload</h2>
 
       <form id="loginForm">
         <label for="adminEmail">Admin Email</label>
-        <input
-          id="adminEmail"
-          type="email"
-          placeholder="Enter admin email"
-          required
-        >
+        <input id="adminEmail" type="email"
+          placeholder="Admin email" required>
 
         <label for="adminPassword">Admin Password</label>
-        <input
-          id="adminPassword"
-          type="password"
-          placeholder="Enter admin password"
-          required
-        >
+        <input id="adminPassword" type="password"
+          placeholder="Admin password" required>
 
         <button type="submit">Login</button>
       </form>
@@ -68,76 +79,20 @@
         </select>
 
         <label for="pdfTitle">PDF Title</label>
-        <input
-          id="pdfTitle"
-          type="text"
-          placeholder="Enter PDF title"
-          required
-        >
+        <input id="pdfTitle" type="text"
+          placeholder="PDF title" required>
 
         <label for="pdfFile">Choose PDF</label>
-        <input
-          id="pdfFile"
-          type="file"
-          accept=".pdf,application/pdf"
-          required
-        >
+        <input id="pdfFile" type="file"
+          accept=".pdf,application/pdf" required>
 
         <button type="submit">Upload PDF</button>
         <button type="button" id="logoutButton">Logout</button>
       </form>
     </section>
-
-    <!-- SEARCH -->
-    <section class="card">
-      <h2>🔎 Search Study Materials</h2>
-
-      <input
-        id="search"
-        type="search"
-        placeholder="Search PDF by name..."
-        aria-label="Search PDFs"
-      >
-    </section>
-
-    <!-- SELECT CLASS -->
-    <section class="card">
-      <h2>Select Your Class</h2>
-
-      <div class="classes">
-        <button type="button" class="class-btn" data-class="9">
-          Class 9
-        </button>
-
-        <button type="button" class="class-btn" data-class="10">
-          Class 10
-        </button>
-
-        <button type="button" class="class-btn" data-class="11">
-          Class 11
-        </button>
-
-        <button type="button" class="class-btn" data-class="12">
-          Class 12
-        </button>
-      </div>
-    </section>
-
-    <!-- STUDY MATERIALS -->
-    <section class="card">
-      <h2 id="materialsTitle">All Study Materials</h2>
-
-      <div id="materials">
-        <p class="muted">Loading PDFs...</p>
-      </div>
-    </section>
-
   </main>
 
-  <footer>
-    © 2026 Study Hub | Learn Every Day
-  </footer>
-
-  <script src="app.js?v=3"></script>
+  <footer>© 2026 Study Hub | Learn Every Day</footer>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
