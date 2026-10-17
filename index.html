@@ -4,11 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#173b8f">
+  <meta name="theme-color" content="#000000">
   <title>Study Hub | Satyam Vishwakarma</title>
+
   <link rel="stylesheet" href="style.css">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
   <header>
     <h1>📚 Study Hub</h1>
@@ -17,54 +20,78 @@
   </header>
 
   <main>
-    
-<section class="card">
-  <h2>Admin Login / Upload</h2>
 
-  <form id="loginForm">
-    <input id="adminEmail" type="email"
-      placeholder="Admin email" required>
+    <!-- ADMIN LOGIN AND PDF UPLOAD -->
+    <section class="card">
+      <h2>Admin Login / Upload</h2>
 
-    <input id="adminPassword" type="password"
-      placeholder="Admin password" required>
+      <form id="loginForm">
+        <label for="adminEmail">Admin Email</label>
+        <input
+          id="adminEmail"
+          type="email"
+          placeholder="Enter admin email"
+          required
+        >
 
-    <button type="submit">Login</button>
-  </form>
+        <label for="adminPassword">Admin Password</label>
+        <input
+          id="adminPassword"
+          type="password"
+          placeholder="Enter admin password"
+          required
+        >
 
-  <p id="adminMessage" class="muted"></p>
+        <button type="submit">Login</button>
+      </form>
 
-  <form id="uploadForm" hidden>
-    <label for="pdfClass">Select Class</label>
-    <select id="pdfClass" required>
-      <option value="9">Class 9</option>
-      <option value="10">Class 10</option>
-      <option value="11">Class 11</option>
-      <option value="12">Class 12</option>
-    </select>
+      <p id="adminMessage" class="muted"></p>
 
-    <label for="pdfSubject">Select Subject</label>
-    <select id="pdfSubject" required>
-      <option>Maths</option>
-      <option>Science</option>
-      <option>SST</option>
-      <option>English</option>
-      <option>Hindi</option>
-      <option>IT</option>
-      <option>Other</option>
-    </select>
+      <form id="uploadForm" hidden>
+        <label for="pdfClass">Select Class</label>
+        <select id="pdfClass" required>
+          <option value="9">Class 9</option>
+          <option value="10">Class 10</option>
+          <option value="11">Class 11</option>
+          <option value="12">Class 12</option>
+        </select>
 
-    <input id="pdfTitle" type="text"
-      placeholder="PDF title" required>
+        <label for="pdfSubject">Select Subject</label>
+        <select id="pdfSubject" required>
+          <option>Maths</option>
+          <option>Science</option>
+          <option>SST</option>
+          <option>English</option>
+          <option>Hindi</option>
+          <option>IT</option>
+          <option>Other</option>
+        </select>
 
-    <input id="pdfFile" type="file"
-      accept=".pdf,application/pdf" required>
+        <label for="pdfTitle">PDF Title</label>
+        <input
+          id="pdfTitle"
+          type="text"
+          placeholder="Enter PDF title"
+          required
+        >
 
-    <button type="submit">Upload PDF</button>
-    <button type="button" id="logoutButton">Logout</button>
-  </form>
-</section>
-    
+        <label for="pdfFile">Choose PDF</label>
+        <input
+          id="pdfFile"
+          type="file"
+          accept=".pdf,application/pdf"
+          required
+        >
+
+        <button type="submit">Upload PDF</button>
+        <button type="button" id="logoutButton">Logout</button>
+      </form>
+    </section>
+
+    <!-- SEARCH -->
+    <section class="card">
       <h2>🔎 Search Study Materials</h2>
+
       <input
         id="search"
         type="search"
@@ -73,34 +100,44 @@
       >
     </section>
 
+    <!-- SELECT CLASS -->
     <section class="card">
       <h2>Select Your Class</h2>
+
       <div class="classes">
-        <button class="class-btn" data-class="9">Class 9</button>
-        <button class="class-btn" data-class="10">Class 10</button>
-        <button class="class-btn" data-class="11">Class 11</button>
-        <button class="class-btn" data-class="12">Class 12</button>
+        <button type="button" class="class-btn" data-class="9">
+          Class 9
+        </button>
+
+        <button type="button" class="class-btn" data-class="10">
+          Class 10
+        </button>
+
+        <button type="button" class="class-btn" data-class="11">
+          Class 11
+        </button>
+
+        <button type="button" class="class-btn" data-class="12">
+          Class 12
+        </button>
       </div>
     </section>
 
+    <!-- STUDY MATERIALS -->
     <section class="card">
       <h2 id="materialsTitle">All Study Materials</h2>
+
       <div id="materials">
         <p class="muted">Loading PDFs...</p>
       </div>
     </section>
 
-    <section class="card">
-      <h2>Admin Upload</h2>
-      <p class="muted">
-        Admin login and PDF upload will be connected after the storage
-        and authentication setup is verified.
-      </p>
-    </section>
   </main>
 
-  <footer>© 2026 Study Hub | Learn Every Day</footer>
+  <footer>
+    © 2026 Study Hub | Learn Every Day
+  </footer>
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
